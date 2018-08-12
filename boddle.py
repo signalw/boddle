@@ -25,7 +25,6 @@ class boddle(object):
 
     environ = {}
     self.extras = extras
-    self.extra_orig = {}
     self.orig_app_reader = bottle.BaseRequest.app
     
     if params is not None:
@@ -72,21 +71,18 @@ class boddle(object):
     self.orig = bottle.request.environ
     bottle.request.environ = self.environ
     for k,v in self.extras.items():
-      if hasattr(bottle.request, k):
-        self.extra_orig[k] = getattr(bottle.request, k)
+      if k == 'environ':
+        raise ValueError('%s cannot be used as an extra argument.' % k)
       setattr(bottle.request, k, v)
     setattr(bottle.BaseRequest, 'app', True)
 
   def __exit__(self,a,b,c):
     bottle.request.environ = self.orig
     for k,v in self.extras.items():
-      if k in self.extra_orig:
-        setattr(bottle.request, k, self.extra_orig[k])
-      else:
-        try:
-          delattr(bottle.request, k)
-        except AttributeError:
-          pass
+      try:
+        delattr(bottle.request, k)
+      except AttributeError:
+        pass
     setattr(bottle.BaseRequest, 'app', self.orig_app_reader)
 
 

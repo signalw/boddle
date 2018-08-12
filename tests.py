@@ -45,7 +45,12 @@ class TestBoddle(unittest.TestCase):
       with boddle(extra='woot2'):
         self.assertEqual(bottle.request.extra, 'woot2')
     self.assertFalse(hasattr(bottle.request,'extra'))
- 
+
+  def testExtraEnviron(self):
+    with self.assertRaises(ValueError):
+      with boddle(environ='bad'):
+        pass
+
   def testJSON(self):
     with boddle(json={'name':'derek'}):
       self.assertEqual(bottle.request.json['name'], 'derek')
